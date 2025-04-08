@@ -13,9 +13,6 @@ class BirthdayBot(commands.Bot):
         )
         self.birthday_data = {}
 
-    async def setup_hook(self):
-        await self.load_extension("cogs.birthday")
-
 def create_bot():
     bot = BirthdayBot()
     
@@ -142,7 +139,7 @@ def create_bot():
 bot = create_bot()
 
 # Load token from environment variable
-TOKEN = os.getenv('DISCORD_TOKEN')
+TOKEN = os.getenv('DISCORD_BOT_TOKEN')
 
 try:
     bot.run(TOKEN)
