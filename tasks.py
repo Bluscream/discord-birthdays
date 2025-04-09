@@ -13,7 +13,6 @@ class BirthdayTasks(commands.Cog):
         self.birthday_data = {}
 
     def _parse_birthday(self, date_str):
-        """Parse birthday date string in various formats"""
         try:
             # Try ISO format first (YYYY-MM-DD)
             return date.fromisoformat(date_str)
@@ -21,7 +20,7 @@ class BirthdayTasks(commands.Cog):
             try:
                 # Try MM-DD format
                 month, day = map(int, date_str.split('-'))
-                return date(2024, month, day)
+                return date(2026, month, day)
             except ValueError:
                 raise ValueError(lang.get("error.invalid_date_format").format(date_str=date_str))
 
@@ -32,15 +31,15 @@ class BirthdayTasks(commands.Cog):
         await ctx.send(lang.get("response.ping").format(latency=f"{latency:.2f}"))
 
     @commands.command(name="bday", description="Set your birthday")
-    async def set_birthday(self, ctx, day: int, month: int):
+    async def set_birthday(self, ctx, day: int, month: int): # Todo: Allow getting bday with no args + allow setting other users bday for admins + allow setting birthyear optionally
         if not (1 <= month <= 12 and 1 <= day <= 31):
             await ctx.send(lang.get("response.invalid_date_format"))
             return
             
         try:
-            current_year = datetime.now().year + 1
-            dt = date(current_year, month, day)
-            start = pytz.utc.localize(datetime.combine(dt, datetime.min.time()))
+            next_year = datetime.now().year + 1 # TODO: Make it reoccuring?
+            dt = date(next_year, month, day)
+            start = pytz.utc.localize(datetime.combine(dt, datetime.min.time())) # TODO: How to make this shit from 00:00 to 23:59?
             end = pytz.utc.localize(datetime.combine(dt, datetime.max.time()))
             
             guild_id = str(ctx.guild.id)
@@ -48,7 +47,7 @@ class BirthdayTasks(commands.Cog):
             
             if guild_id not in self.birthday_data:
                 self.birthday_data[guild_id] = {"members": {}}
-            iso_date = f"{current_year}-{month:02d}-{day:02d}"
+            iso_date = f"{next_year}-{month:02d}-{day:02d}"
             self.birthday_data[guild_id]["members"][member_id] = {
                 "date": iso_date,
                 "username": ctx.author.name,
@@ -85,7 +84,7 @@ class BirthdayTasks(commands.Cog):
             print(err)
             await ctx.send(lang.get("response.invalid_date_format"))
 
-    @commands.command(name="listbdays", description="List upcoming birthdays")
+    @commands.command(name="bdays", description="List upcoming birthdays") # TODO: Use ctx.guild.scheduled_events
     async def list_birthdays(self, ctx):
         guild_id = str(ctx.guild.id)
         
